@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Викторина: Безопасные платежи</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .question-container {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #2196F3;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: #2196F3;
+            background: #f8fdff;
+        }
+        
+        .correct {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724;
+        }
+        
+        .incorrect {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24;
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 2px solid #2196F3;
+        }
+        
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .progress {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .final-score {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Викторина: Безопасные платежи</h1>
+        <div class="progress" id="progress">Вопрос 1 из 5</div>
+        
+        <div id="quiz-container">
+            <div class="question-container">
+                <h3 id="question">Загрузка вопроса...</h3>
+            </div>
+            
+            <div class="options" id="options">
+                <!-- Варианты ответов появятся здесь -->
+            </div>
+            
+            <div class="result" id="result"></div>
+            
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Следующий вопрос →</button>
+        </div>
+        
+        <div id="final-result" style="display: none;">
+            <div class="final-score" id="final-score"></div>
+            <button class="next-btn" onclick="location.reload()">Пройти еще раз</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Что нужно сделать, если вам звонят и представляются банком, просят назвать код из смс?",
+                options: [
+                    "Назвать код, чтобы подтвердить личность",
+                    "Положить трубку и перезвонить в банк по номеру с обратной стороны карты",
+                    "Продиктовать номер карты для проверки",
+                    "Спросить, как зовут оператора"
+                ],
+                correct: 1,
+                explanation: "❌ Неправильно! Банк НИКОГДА не звонит сам и не просит коды из смс. Правильный ответ: положить трубку и перезвонить в банк по номеру с обратной стороны карты."
+            },
+            {
+                question: "Как безопаснее всего войти в мобильный банк для совершения платежа?",
+                options: [
+                    "Через публичный Wi-Fi в кафе",
+                    "Через ссылку в email-рассылке",
+                    "Через официальное приложение, скачанное из App Store/Google Play",
+                    "Через браузер по сохраненной ссылке"
+                ],
+                correct: 2,
+                explanation: "❌ Неправильно! Публичный Wi-Fi и ссылки из email небезопасны. Правильный ответ: использовать только официальное приложение из магазина приложений."
+            },
+            {
+                question: "Что обязательно нужно проверить перед оплатой ЖКХ?",
+                options: [
+                    "Красиво ли оформлена квитанция",
+                    "Совпадает ли номер лицевого счета с квитанцией",
+                    "Есть ли скидка на оплату",
+                    "Работает ли камера телефона"
+                ],
+                correct: 1,
+                explanation: "❌ Неправильно! Внешний вид квитанции не важен для безопасности. Правильный ответ: всегда проверять номер лицевого счета - одна ошибка в цифре, и платеж уйдет не туда."
+            },
+            {
+                question: "Какие данные НЕЛЬЗЯ сообщать по телефону или в сообщениях?",
+                options: [
+                    "Свой адрес проживания",
+                    "Коды из смс-сообщений от банка",
+                    "Номер телефона",
+                    "Дату рождения"
+                ],
+                correct: 1,
+                explanation: "❌ Неправильно! Адрес и дата рождения менее опасны. Правильный ответ: коды из смс - это ключ от ваших денег, их нельзя никому сообщать."
+            },
+            {
+                question: "Что делать, если вы случайно оплатили не ту услугу?",
+                options: [
+                    "Ничего, деньги уже не вернуть",
+                    "Сразу звонить в полицию",
+                    "Написать в банк через официальное приложение и объяснить ситуацию",
+                    "Перевести еще денег, чтобы исправить ошибку"
+                ],
+                correct: 2,
+                explanation: "❌ Неправильно! Деньги часто можно вернуть. Правильный ответ: обратиться в банк через официальные каналы - они помогут решить проблему."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('progress').textContent = `Вопрос ${currentQuestion + 1} из ${questions.length}`;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const resultDiv = document.getElementById('result');
+            
+            // Отключаем все кнопки
+            options.forEach(option => {
+                option.onclick = null;
+            });
+            
+            // Подсвечиваем правильный и неправильный ответ
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Показываем результат
+            if (selectedIndex === question.correct) {
+                resultDiv.textContent = "✅ Правильно! " + question.explanation.replace("❌ Неправильно! ", "");
+                resultDiv.className = 'result success';
+                score++;
+            } else {
+                resultDiv.textContent = question.explanation;
+                resultDiv.className = 'result error';
+            }
+            
+            resultDiv.style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showFinalResult();
+            }
+        }
+
+        function showFinalResult() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('final-result').style.display = 'block';
+            
+            const finalScoreDiv = document.getElementById('final-score');
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            let message = '';
+            if (percentage >= 80) {
+                message = `🎉 Отлично! ${score} из ${questions.length} правильных ответов! Вы отлично разбираетесь в безопасности платежей!`;
+            } else if (percentage >= 60) {
+                message = `👍 Хорошо! ${score} из ${questions.length} правильных ответов! Вы на верном пути!`;
+            } else {
+                message = `📚 Есть над чем поработать! ${score} из ${questions.length} правильных ответов. Повторите правила безопасности!`;
+            }
+            
+            finalScoreDiv.textContent = message;
+        }
+
+        // Загружаем первый вопрос при старте
+        loadQuestion();
+    </script>
+</body>
+</html>
